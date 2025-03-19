@@ -12,9 +12,10 @@ RUN yum install -y sudo wget curl perl util-linux xz bzip2 git patch which perl 
 ENV PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
 
-# cmake-3.18.4 from pip
+# cmake from pip
 RUN yum install -y python3-pip && \
-    python3 -mpip install cmake==3.18.4 && \
+    python3 -mpip install scikit-build && \
+    python3 -mpip install cmake && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake3
 
 FROM base as openssl
@@ -131,9 +132,10 @@ RUN for cpython_version in "cp312-cp312" "cp313-cp313" "cp313-cp313t"; do \
     done;
 
 
-# cmake-3.18.4 from pip; force in case cmake3 already exists
+# cmake>=3.25 from pip; force in case cmake3 already exists
 RUN yum install -y python3-pip && \
-    python3 -mpip install cmake==3.18.4 && \
+    python3 -mpip install scikit-build && \
+    python3 -mpip install cmake && \
     ln -sf /usr/local/bin/cmake /usr/bin/cmake3
 
 FROM cpu_final as cuda_final
@@ -155,6 +157,7 @@ ENV ROCM_PATH /opt/rocm
 # cmake-3.28.4 from pip to get enable_language(HIP)
 # and avoid 3.21.0 cmake+ninja issues with ninja inserting "-Wl,--no-as-needed" in LINK_FLAGS for static linker
 RUN python3 -m pip install --upgrade pip && \
+    python3 -mpip install scikit-build && \
     python3 -mpip install cmake==3.28.4
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
@@ -169,6 +172,7 @@ FROM cpu_final as xpu_final
 ENV XPU_DRIVER_TYPE ROLLING
 # cmake-3.28.4 from pip
 RUN python3 -m pip install --upgrade pip && \
+    python3 -mpip install scikit-build && \
     python3 -mpip install cmake==3.28.4
 ADD ./common/install_xpu.sh install_xpu.sh
 ENV XPU_VERSION 2025.0

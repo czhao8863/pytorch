@@ -32,9 +32,10 @@ ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt
 
 RUN yum --enablerepo=extras install -y epel-release
 
-# cmake-3.18.4 from pip
+# cmake from pip
 RUN yum install -y python3-pip && \
-    python3 -mpip install cmake==3.18.4 && \
+    python3 -mpip install scikit-build && \
+    python3 -mpip install cmake && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 RUN yum install -y autoconf aclocal automake make sudo
@@ -165,9 +166,10 @@ ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt
 
 # cmake is already installed inside the rocm base image, so remove if present
 RUN rpm -e cmake || true
-# cmake-3.18.4 from pip
+# cmake from pip
 RUN yum install -y python3-pip && \
-    python3 -mpip install cmake==3.18.4 && \
+    python3 -mpip install scikit-build && \
+    python3 -mpip install cmake && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 # ninja
