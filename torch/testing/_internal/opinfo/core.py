@@ -2052,6 +2052,7 @@ def generate_elementwise_binary_small_value_tensors(
         complex_vals = [complex(*x) for x in complex_vals]
         prod = product(complex_vals, complex_vals)
     elif dtype in (torch.int8, torch.int16, torch.int32, torch.int64):
+        _int_vals = (0, -1, 1, -55, 55, -127, 127)
         prod = product(_int_vals, _int_vals)
     elif dtype is torch.uint8:
         prod = product(_unsigned_int_vals, _unsigned_int_vals)

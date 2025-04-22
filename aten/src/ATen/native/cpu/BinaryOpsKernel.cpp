@@ -208,8 +208,14 @@ void div_trunc_kernel(TensorIteratorBase& iter) {
     // TODO: if the divisor is a scalar, rewrite as multiplication by a
     // constant.
     AT_DISPATCH_INTEGRAL_TYPES(dtype, "div_trunc_cpu", [&]() {
-      cpu_kernel(iter, [](scalar_t a, scalar_t b) -> scalar_t {
-        TORCH_CHECK(b != 0, "ZeroDivisionError");
+      cpu_kernel(iter, [&](scalar_t a, scalar_t b) -> scalar_t {
+        if constexpr (std::numeric_limits<scalar_t>::is_signed) {
+          constexpr scalar_t min = std::numeric_limits<scalar_t>::min();
+          TORCH_CHECK(
+            b != -1 || a != min, "OverflowDivisionError");
+        }
+        TORCH_CHECK(
+            b != 0, "ZeroDivisionError");
         return a / b;
       });
     });
@@ -284,8 +290,14 @@ void div_floor_kernel(TensorIteratorBase& iter) {
   } else if (isIntegralType(dtype, /*includeBool*/ false)) {
     // There's no SIMD integer division, so don't try to vectorize it.
     AT_DISPATCH_INTEGRAL_TYPES(dtype, "div_floor_cpu", [&]() {
-      cpu_kernel(iter, [](scalar_t a, scalar_t b) -> scalar_t {
-        TORCH_CHECK(b != 0, "ZeroDivisionError");
+      cpu_kernel(iter, [&](scalar_t a, scalar_t b) -> scalar_t {
+        if constexpr (std::numeric_limits<scalar_t>::is_signed) {
+          constexpr scalar_t min = std::numeric_limits<scalar_t>::min();
+          TORCH_CHECK(
+            b != -1 || a != min, "OverflowDivisionError");
+        }
+        TORCH_CHECK(
+            b != 0, "ZeroDivisionError");
         return c10::div_floor_integer(a, b);
       });
     });

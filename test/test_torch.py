@@ -3208,6 +3208,20 @@ else:
         self.assertEqual(src.abs().bfloat16(), src_bf16.abs())
 
     @onlyCPU
+    def test_neg_integer_div_overflow(self, device):
+        x = torch.tensor([-2147483648], dtype=torch.int32, device=device)
+        y = torch.tensor([-1], dtype=torch.int32, device=device)
+        torch.div(x, y)
+        with self.assertRaisesRegex(RuntimeError, r'OverflowDivisionError'):
+            torch.div(x, y, rounding_mode='trunc')
+        with self.assertRaisesRegex(RuntimeError, r'OverflowDivisionError'):
+            torch.div(x, y, rounding_mode='floor')
+
+        y = torch.tensor([1], dtype=torch.int32)
+        torch.div(x, y, rounding_mode='trunc')
+        torch.div(x, y, rounding_mode='floor')
+
+    @onlyCPU
     @dtypes(torch.bfloat16, torch.half)
     def test_reduced_type_float_copy(self, device, dtype):
         for shape in [(20, 7), (249, 137), (1029, 917), (1, 7, 19, 17), (3, 77, 1091)]:
